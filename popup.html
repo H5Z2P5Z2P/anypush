@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 320px;
+      padding: 16px;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      background: #f8f9fa;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: #1a73e8;
+      margin-bottom: 4px;
+    }
+    
+    .subtitle {
+      color: #5f6368;
+      font-size: 12px;
+    }
+    
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid #e8eaed;
+    }
+    
+    .section-title {
+      font-weight: 500;
+      margin-bottom: 12px;
+      color: #202124;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .icon {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #1a73e8;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #1557b0;
+    }
+    
+    .btn-secondary {
+      background: #f8f9fa;
+      color: #5f6368;
+      border: 1px solid #dadce0;
+    }
+    
+    .btn-secondary:hover {
+      background: #e8f0fe;
+      color: #1a73e8;
+    }
+    
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .selected-text {
+      background: #e8f0fe;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #1a73e8;
+      margin-bottom: 8px;
+      max-height: 60px;
+      overflow-y: auto;
+      word-break: break-word;
+    }
+    
+    .current-url {
+      background: #f3e8ff;
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #7c3aed;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+    
+    .status {
+      padding: 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      text-align: center;
+      margin-top: 8px;
+    }
+    
+    .status.success {
+      background: #e6f4ea;
+      color: #137333;
+    }
+    
+    .status.error {
+      background: #fce8e6;
+      color: #d93025;
+    }
+    
+    .status.loading {
+      background: #e8f0fe;
+      color: #1a73e8;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 16px;
+    }
+    
+    .settings-link {
+      color: #5f6368;
+      text-decoration: none;
+      font-size: 12px;
+    }
+    
+    .settings-link:hover {
+      color: #1a73e8;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">📱 AnyPush</div>
+    <div class="subtitle">跨设备推送助手</div>
+  </div>
+  
+  <div class="section">
+    <div class="section-title">
+      📝 选中文本推送
+    </div>
+    <div id="selectedTextContent" class="selected-text" style="display: none;"></div>
+    <button id="pushSelectedBtn" class="btn btn-primary" disabled>
+      推送选中文本
+    </button>
+  </div>
+  
+  <div class="section">
+    <div class="section-title">
+      🔗 链接推送
+    </div>
+    <div id="currentUrlContent" class="current-url"></div>
+    <button id="pushUrlBtn" class="btn btn-primary">
+      推送当前链接
+    </button>
+  </div>
+  
+  <div id="statusMessage" class="status" style="display: none;"></div>
+  
+  <div class="footer">
+    <a href="#" id="settingsLink" class="settings-link">⚙️ 配置推送服务</a>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

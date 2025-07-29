@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>AnyPush - 配置页面</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 24px;
+      background: #f8f9fa;
+      line-height: 1.5;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .logo {
+      font-size: 32px;
+      font-weight: bold;
+      color: #1a73e8;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      color: #5f6368;
+      font-size: 16px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+      border: 1px solid #e8eaed;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      color: #202124;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .service-config {
+      margin-bottom: 32px;
+    }
+    
+    .service-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .service-name {
+      font-weight: 500;
+      font-size: 16px;
+    }
+    
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+      margin-left: auto;
+    }
+    
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #1a73e8;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #202124;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+    }
+    
+    .form-input:disabled {
+      background-color: #f8f9fa;
+      color: #5f6368;
+    }
+    
+    textarea.form-input {
+      resize: vertical;
+      min-height: 60px;
+    }
+    
+    input[type="range"].form-input {
+      height: 6px;
+      border-radius: 3px;
+      background: #ddd;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    input[type="range"].form-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #1a73e8;
+      cursor: pointer;
+    }
+    
+    input[type="range"].form-input::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #1a73e8;
+      cursor: pointer;
+      border: none;
+    }
+    
+    .form-help {
+      font-size: 12px;
+      color: #5f6368;
+      margin-top: 4px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #1a73e8;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #1557b0;
+    }
+    
+    .btn-secondary {
+      background: #f8f9fa;
+      color: #5f6368;
+      border: 1px solid #dadce0;
+    }
+    
+    .btn-secondary:hover {
+      background: #e8f0fe;
+      color: #1a73e8;
+    }
+    
+    .btn-test {
+      margin-left: 12px;
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+    
+    .status-message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+    
+    .status-success {
+      background: #e6f4ea;
+      color: #137333;
+      border: 1px solid #34a853;
+    }
+    
+    .status-error {
+      background: #fce8e6;
+      color: #d93025;
+      border: 1px solid #ea4335;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+    
+    .sync-section {
+      border-top: 1px solid #e8eaed;
+      padding-top: 24px;
+    }
+    
+    .sync-options {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .radio-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .radio-group input[type="radio"] {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">📱 AnyPush</div>
+      <div class="subtitle">跨设备推送助手 - 配置页面</div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">
+        ⚙️ 推送设置
+      </div>
+      
+      <!-- 推送来源设置 -->
+      <div class="service-config">
+        <div class="service-header">
+          <span class="service-name">📄 推送内容设置</span>
+        </div>
+        
+        <div class="form-group">
+          <div class="radio-group">
+            <input type="checkbox" id="includeSource">
+            <label for="includeSource">包含来源信息（页面标题和链接）</label>
+          </div>
+          <div class="form-help">关闭后推送纯原始内容，不添加任何额外信息和格式</div>
+        </div>
+        
+        <div id="sourceOptions" class="form-group">
+          <label class="form-label">文本推送模板</label>
+          <textarea id="textTemplate" class="form-input" rows="3" 
+                    placeholder="{text}&#10;&#10;来源: {title}&#10;链接: {url}"></textarea>
+          <div class="form-help">可用变量：{text} - 选中文本，{title} - 页面标题，{url} - 页面链接</div>
+          
+          <label class="form-label">链接推送模板</label>
+          <textarea id="urlTemplate" class="form-input" rows="2" 
+                    placeholder="{url}&#10;&#10;页面: {title}"></textarea>
+          <div class="form-help">可用变量：{url} - 页面链接，{title} - 页面标题</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">
+        🚀 推送服务配置
+      </div>
+      
+      <!-- 企业微信配置 -->
+      <div class="service-config">
+        <div class="service-header">
+          <span class="service-name">💬 企业微信机器人</span>
+          <label class="switch">
+            <input type="checkbox" id="wechatEnabled">
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="wechatWebhook">Webhook URL</label>
+          <input type="url" id="wechatWebhook" class="form-input" 
+                 placeholder="https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=YOUR_KEY">
+          <div class="form-help">在企业微信群聊中添加机器人获取Webhook地址</div>
+        </div>
+        
+        <button class="btn btn-secondary btn-test" id="testWechat">测试推送</button>
+      </div>
+      
+      <!-- Bark配置 -->
+      <div class="service-config">
+        <div class="service-header">
+          <span class="service-name">🔔 Bark</span>
+          <label class="switch">
+            <input type="checkbox" id="barkEnabled">
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="barkUrl">Bark URL</label>
+          <input type="url" id="barkUrl" class="form-input" 
+                 placeholder="https://api.day.app/YOUR_KEY/">
+          <div class="form-help">在Bark App中获取推送地址，需要以/结尾</div>
+        </div>
+        
+        <!-- Bark高级选项 -->
+        <div class="bark-advanced" id="barkAdvanced">
+          <h4 style="margin: 16px 0 12px 0; color: #202124; font-size: 14px;">高级选项</h4>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" for="barkLevel">推送级别</label>
+              <select id="barkLevel" class="form-input">
+                <option value="active">默认 (active)</option>
+                <option value="critical">重要警告 (critical)</option>
+                <option value="timeSensitive">时效性通知 (timeSensitive)</option>
+                <option value="passive">被动通知 (passive)</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="barkGroup">分组名称</label>
+              <input type="text" id="barkGroup" class="form-input" 
+                     placeholder="AnyPush" value="AnyPush">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="barkBadge">角标数字</label>
+              <input type="number" id="barkBadge" class="form-input" 
+                     placeholder="留空不设置" min="0" max="99">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="barkSound">铃声</label>
+              <select id="barkSound" class="form-input">
+                <option value="">默认铃声</option>
+                <option value="alarm">alarm</option>
+                <option value="anticipate">anticipate</option>
+                <option value="bell">bell</option>
+                <option value="birdsong">birdsong</option>
+                <option value="bloom">bloom</option>
+                <option value="calypso">calypso</option>
+                <option value="chime">chime</option>
+                <option value="choo">choo</option>
+                <option value="descent">descent</option>
+                <option value="electronic">electronic</option>
+                <option value="fanfare">fanfare</option>
+                <option value="glass">glass</option>
+                <option value="gotosleep">gotosleep</option>
+                <option value="healthnotification">healthnotification</option>
+                <option value="horn">horn</option>
+                <option value="ladder">ladder</option>
+                <option value="mailsent">mailsent</option>
+                <option value="minuet">minuet</option>
+                <option value="multiwayinvitation">multiwayinvitation</option>
+                <option value="newmail">newmail</option>
+                <option value="newsflash">newsflash</option>
+                <option value="noir">noir</option>
+                <option value="paymentsuccess">paymentsuccess</option>
+                <option value="shake">shake</option>
+                <option value="sherwoodforest">sherwoodforest</option>
+                <option value="silence">silence</option>
+                <option value="spell">spell</option>
+                <option value="suspense">suspense</option>
+                <option value="telegraph">telegraph</option>
+                <option value="tiptoes">tiptoes</option>
+                <option value="typewriters">typewriters</option>
+                <option value="update">update</option>
+              </select>
+            </div>
+            
+            <div class="form-group" id="barkVolumeGroup" style="display: none;">
+              <label class="form-label" for="barkVolume">音量 (0-10)</label>
+              <input type="range" id="barkVolume" min="0" max="10" value="5" class="form-input">
+              <div class="form-help">仅在重要警告级别时生效</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <div class="radio-group">
+              <input type="checkbox" id="barkAutoCopy">
+              <label for="barkAutoCopy">自动复制推送内容</label>
+            </div>
+            <div class="radio-group">
+              <input type="checkbox" id="barkArchive" checked>
+              <label for="barkArchive">保存推送历史</label>
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn btn-secondary btn-test" id="testBark">测试推送</button>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">
+        ☁️ 配置同步
+      </div>
+      
+      <div class="sync-section">
+        <div class="form-group">
+          <label class="form-label">同步方式</label>
+          <div class="sync-options">
+            <div class="radio-group">
+              <input type="radio" id="syncNone" name="syncType" value="none" checked>
+              <label for="syncNone">不同步</label>
+            </div>
+            <div class="radio-group">
+              <input type="radio" id="syncGoogle" name="syncType" value="google">
+              <label for="syncGoogle">Google账户</label>
+            </div>
+            <div class="radio-group">
+              <input type="radio" id="syncWebdav" name="syncType" value="webdav">
+              <label for="syncWebdav">WebDAV</label>
+            </div>
+          </div>
+        </div>
+        
+        <div id="webdavConfig" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="webdavUrl">WebDAV服务器地址</label>
+            <input type="url" id="webdavUrl" class="form-input" 
+                   placeholder="https://your-webdav-server.com/path/">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="webdavUsername">用户名</label>
+            <input type="text" id="webdavUsername" class="form-input">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="webdavPassword">密码</label>
+            <input type="password" id="webdavPassword" class="form-input">
+          </div>
+        </div>
+        
+        <div class="actions">
+          <button class="btn btn-secondary" id="exportConfig">导出配置</button>
+          <button class="btn btn-secondary" id="importConfig">导入配置</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="actions">
+      <button class="btn btn-secondary" id="resetBtn">重置配置</button>
+      <button class="btn btn-primary" id="saveBtn">保存配置</button>
+    </div>
+    
+    <div id="statusMessage" class="status-message" style="display: none;"></div>
+  </div>
+  
+  <script src="options.js"></script>
+</body>
+</html>
