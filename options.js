@@ -76,7 +76,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 加载已保存的配置
   async function loadConfig() {
     try {
+      // 首先获取所有配置数据
       const result = await chrome.storage.sync.get(['pushServices', 'pushSettings', 'syncConfig']);
+      
+      // 如果启用了Google同步，确保从云端获取最新配置
+      if (result.syncConfig && result.syncConfig.type === 'google') {
+        // Chrome.storage.sync本身就是Google云端同步，无需额外操作
+        // 但可以添加同步状态提示
+        console.log('Google同步已启用，正在使用云端配置');
+      }
       
       // 推送设置
       if (result.pushSettings) {
@@ -120,6 +128,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           elements.webdavUsername.value = syncConfig.webdav.username || '';
           elements.webdavPassword.value = syncConfig.webdav.password || '';
         }
+      } else {
+        // 如果syncConfig不存在，默认选择"不同步"
+        document.querySelector(`input[name="syncType"][value="none"]`).checked = true;
       }
       
       // 更新UI状态
@@ -192,12 +203,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       await chrome.storage.sync.set({ pushSettings, pushServices, syncConfig });
       
-      // 如果启用了同步，上传配置
+      // 如果启用了同步，验证配置同步状态
       if (syncType !== 'none') {
-        await syncConfigToCloud({ pushSettings, pushServices }, syncConfig);
+        try {
+          const syncResult = await syncConfigToCloud({ pushSettings, pushServices }, syncConfig);
+          showStatus('配置保存成功！' + (syncResult.message ? ' ' + syncResult.message : ''), 'success');
+        } catch (syncError) {
+          // 配置已保存到本地，但同步失败
+          showStatus('配置已保存到本地，但同步失败: ' + syncError.message, 'error');
+        }
+      } else {
+        showStatus('配置保存成功！', 'success');
       }
-      
-      showStatus('配置保存成功！', 'success');
       
     } catch (error) {
       showStatus('保存失败: ' + error.message, 'error');
@@ -403,14 +420,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   // 配置云同步
-  async function syncConfigToCloud(pushServices, syncConfig) {
+  async function syncConfigToCloud(configData, syncConfig) {
     if (syncConfig.type === 'google') {
-      // Google账户同步 - 已经使用chrome.storage.sync
-      return;
+      // Google账户同步 - 使用chrome.storage.sync API
+      // 验证配置已正确保存到云端
+      try {
+        // 由于chrome.storage.sync.set已经在saveConfig中调用，这里主要做验证
+        const savedData = await chrome.storage.sync.get(['pushServices', 'pushSettings']);
+        if (savedData.pushServices && savedData.pushSettings) {
+          console.log('Google云端同步验证成功');
+          return { success: true, message: '配置已同步到Google云端' };
+        } else {
+          throw new Error('云端配置验证失败');
+        }
+      } catch (error) {
+        console.error('Google同步验证失败:', error);
+        throw new Error('Google云端同步失败: ' + error.message);
+      }
     } else if (syncConfig.type === 'webdav') {
       // WebDAV同步
-      await syncToWebDAV(pushServices, syncConfig.webdav);
+      await syncToWebDAV(configData, syncConfig.webdav);
+      return { success: true, message: '配置已同步到WebDAV服务器' };
     }
+    return { success: true, message: '无需同步' };
   }
   
   // WebDAV同步

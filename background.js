@@ -1,5 +1,42 @@
 // 后台脚本 - Service Worker
-chrome.runtime.onInstalled.addListener(() => {
+
+// 验证配置是否完整
+function isConfigComplete(config, configType) {
+  if (!config) return false;
+  
+  if (configType === 'pushServices') {
+    return config.wechat && config.bark && 
+           typeof config.wechat.name === 'string' && 
+           typeof config.bark.name === 'string';
+  }
+  
+  if (configType === 'pushSettings') {
+    return config.textTemplate && config.urlTemplate &&
+           typeof config.includeSource === 'boolean';
+  }
+  
+  return false;
+}
+
+// 合并默认配置到现有配置
+function mergeDefaultConfig(existingConfig, defaultConfig) {
+  if (!existingConfig) return defaultConfig;
+  
+  const merged = { ...existingConfig };
+  
+  // 递归合并配置项
+  for (const key in defaultConfig) {
+    if (typeof defaultConfig[key] === 'object' && defaultConfig[key] !== null) {
+      merged[key] = merged[key] ? { ...defaultConfig[key], ...merged[key] } : defaultConfig[key];
+    } else if (merged[key] === undefined) {
+      merged[key] = defaultConfig[key];
+    }
+  }
+  
+  return merged;
+}
+
+chrome.runtime.onInstalled.addListener(async () => {
   // 创建右键菜单
   chrome.contextMenus.create({
     id: "pushSelectedText",
@@ -7,42 +44,63 @@ chrome.runtime.onInstalled.addListener(() => {
     contexts: ["selection"]
   });
   
-  // 初始化默认配置
-  chrome.storage.sync.get(['pushServices', 'pushSettings'], (result) => {
-    if (!result.pushServices) {
-      const defaultConfig = {
-        wechat: {
-          name: "企业微信",
-          enabled: false,
-          webhook: ""
-        },
-        bark: {
-          name: "Bark", 
-          enabled: false,
-          url: "",
-          // Bark高级选项
-          level: "active",
-          badge: "",
-          sound: "",
-          group: "AnyPush",
-          autoCopy: false,
-          isArchive: true,
-          volume: 5
-        }
-      };
-      chrome.storage.sync.set({ pushServices: defaultConfig });
+  // 优先使用云端配置，只有在云端无配置时才设置默认值
+  try {
+    const result = await chrome.storage.sync.get(['pushServices', 'pushSettings', 'syncConfig']);
+    
+    // 默认配置定义
+    const defaultPushServices = {
+      wechat: {
+        name: "企业微信",
+        enabled: false,
+        webhook: ""
+      },
+      bark: {
+        name: "Bark", 
+        enabled: false,
+        url: "",
+        // Bark高级选项
+        level: "active",
+        badge: "",
+        sound: "",
+        group: "AnyPush",
+        autoCopy: false,
+        isArchive: true,
+        volume: 5
+      }
+    };
+    
+    const defaultPushSettings = {
+      includeSource: true,  // 是否包含来源信息
+      sourceFormat: "full", // full: 完整信息, title: 仅标题, url: 仅链接, none: 不包含
+      textTemplate: "{text}\n\n来源: {title}\n链接: {url}",
+      urlTemplate: "{url}\n\n页面: {title}"
+    };
+    
+    // 检查并合并pushServices配置
+    if (!isConfigComplete(result.pushServices, 'pushServices')) {
+      const mergedServices = mergeDefaultConfig(result.pushServices, defaultPushServices);
+      await chrome.storage.sync.set({ pushServices: mergedServices });
     }
     
-    if (!result.pushSettings) {
-      const defaultSettings = {
-        includeSource: true,  // 是否包含来源信息
-        sourceFormat: "full", // full: 完整信息, title: 仅标题, url: 仅链接, none: 不包含
-        textTemplate: "{text}\n\n来源: {title}\n链接: {url}",
-        urlTemplate: "{url}\n\n页面: {title}"
-      };
-      chrome.storage.sync.set({ pushSettings: defaultSettings });
+    // 检查并合并pushSettings配置
+    if (!isConfigComplete(result.pushSettings, 'pushSettings')) {
+      const mergedSettings = mergeDefaultConfig(result.pushSettings, defaultPushSettings);
+      await chrome.storage.sync.set({ pushSettings: mergedSettings });
     }
-  });
+    
+    // 如果syncConfig不存在，设置默认的同步配置
+    if (!result.syncConfig) {
+      const defaultSyncConfig = {
+        type: 'none',
+        webdav: null
+      };
+      await chrome.storage.sync.set({ syncConfig: defaultSyncConfig });
+    }
+    
+  } catch (error) {
+    console.error('配置初始化失败:', error);
+  }
 });
 
 // 处理右键菜单点击
